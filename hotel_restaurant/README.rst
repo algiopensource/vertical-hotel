@@ -3,7 +3,7 @@
    :alt: License: AGPL-3
 
 ================
-hotel_restaurant
+Hotel Restaurant
 ================
 
 This Module is providing table booking facilities and Managing customers orders
@@ -14,27 +14,27 @@ You can manage:
 
 * **Table Reservation**
 
-.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/10.0/hotel_restaurant/static/description/res2.png
+.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/11.0/hotel_restaurant/static/description/res2.png
    :width: 750px
 
 * **Manage Food Orders**
 
-.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/10.0/hotel_restaurant/static/description/res3.png
+.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/11.0/hotel_restaurant/static/description/res3.png
    :width: 750px
 
 * **Manage Kitchen Order ticket**
 
-.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/10.0/hotel_restaurant/static/description/res4.png
+.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/11.0/hotel_restaurant/static/description/res4.png
    :width: 750px
 
 * **Quick Table Reservation Facility With Its Food Order**
 
-.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/10.0/hotel_restaurant/static/description/res5.png
+.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/11.0/hotel_restaurant/static/description/res5.png
    :width: 750px
 
 * **Order's History In Hotel Folio**
 
-.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/10.0/hotel_restaurant/static/description/res6.png
+.. image:: https://raw.githubusercontent.com/OCA/vertical-hotel/11.0/hotel_restaurant/static/description/res6.png
    :width: 750px
 
 * Payment
@@ -46,7 +46,7 @@ Usage
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
-   :target: https://runbot.odoo-community.org/runbot/157/10.0
+   :target: https://runbot.odoo-community.org/runbot/157/11.0
 
 Bug Tracker
 ===========
@@ -62,7 +62,7 @@ Credits
 Contributors
 ------------
 
-* Serpent Consulting Services Pvt. Ltd. <jay.vora@serpentcs.com> (http://www.serpentcs.com)
+* Serpent Consulting Services Pvt. Ltd. <jay.vora@serpentcs.com>
 
 Maintainer
 ----------

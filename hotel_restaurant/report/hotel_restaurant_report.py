@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # See LICENSE file for full copyright and licensing details.
 
 import time
@@ -27,57 +26,47 @@ class HotelRestaurantReport(models.AbstractModel):
         return data
 
     @api.model
-    def render_html(self, docids, data=None):
+    def get_report_values(self, docids, data):
         self.model = self.env.context.get('active_model')
-        docs = self.env[self.model].browse(self.env.context.get('active_ids',
-                                                                []))
+        if data is None:
+            data = {}
+        if not docids:
+            docids = data['form'].get('docids')
+        folio_profile = self.env['hotel.restaurant.tables'].browse(docids)
+        date_start = data.get('date_start', fields.Date.today())
         date_start = data.get('date_start', fields.Date.today())
         date_end = data['form'].get('date_end', str(datetime.now() +
                                     relativedelta(months=1,
                                                   day=1, days=1))[:10])
         rm_act = self.with_context(data['form'].get('used_context', {}))
         reservation_res = rm_act.get_res_data(date_start, date_end)
-        docargs = {
+        return {
             'doc_ids': docids,
             'doc_model': self.model,
             'data': data['form'],
-            'docs': docs,
+            'docs': folio_profile,
             'time': time,
             'Reservations': reservation_res,
         }
-        docargs['data'].update({'date_end':
-                                parser.parse(docargs.get('data').
-                                             get('date_end')).strftime('%m/%d/\
-                                                                        %Y')})
-        docargs['data'].update({'date_start':
-                                parser.parse(docargs.get('data').
-                                             get('date_start')).strftime('%m/\
-                                                                          %d/\
-                                                                         %Y')})
-        render_model = 'hotel_restaurant.report_res_table'
-        return self.env['report'].render(render_model, docargs)
 
 
 class ReportKot(models.AbstractModel):
     _name = 'report.hotel_restaurant.report_hotel_order_kot'
 
     @api.model
-    def render_html(self, docids, data):
-        report = self.env['report']
-        report_name = 'hotel_restaurant.report_hotel_order_kot'
-        kot_report = report._get_report_from_name(report_name)
+    def get_report_values(self, docids, data):
+        self.model = self.env.context.get('active_model')
         if data is None:
             data = {}
         if not docids:
-            docids = data.get('docids')
-        kot_profile = self.env['hotel.restaurant.order'].browse(docids)
-        docargs = {
+            docids = data['form'].get('docids')
+        folio_profile = self.env['hotel.restaurant.order'].browse(docids)
+        return {
             'doc_ids': docids,
-            'doc_model': kot_report.model,
-            'docs': kot_profile,
+            'doc_model': self.model,
+            'docs': folio_profile,
             'data': data,
         }
-        return report.render(report_name, docargs)
 
 
 class FolioRestReport(models.AbstractModel):
@@ -119,7 +108,7 @@ class FolioRestReport(models.AbstractModel):
                 order_data = []
                 for order in record.hotel_reservation_order_ids:
                     order_data.append({'order_no': order.order_number,
-                                       'order_date': parser.parse(order.date1).
+                                       'order_date': parser.parse(order.order_date).
                                        strftime('%m/%d/%Y %H:%M:%S'),
                                        'state': order.state,
                                        'table_no': len(order.table_no),
@@ -131,11 +120,13 @@ class FolioRestReport(models.AbstractModel):
         return data
 
     @api.model
-    def render_html(self, docids, data=None):
+    def get_report_values(self, docids, data):
         self.model = self.env.context.get('active_model')
-
-        docs = self.env[self.model].browse(self.env.context.get('active_ids',
-                                                                []))
+        if data is None:
+            data = {}
+        if not docids:
+            docids = data['form'].get('docids')
+        folio_profile = self.env['hotel.reservation.order'].browse(docids)
         date_start = data['form'].get('date_start', fields.Date.today())
         date_end = data['form'].get('date_end', str(datetime.now() +
                                     relativedelta(months=1,
@@ -143,26 +134,15 @@ class FolioRestReport(models.AbstractModel):
         rm_act = self.with_context(data['form'].get('used_context', {}))
         get_data_res = rm_act.get_data(date_start, date_end)
         get_rest_res = rm_act.get_rest(date_start, date_end)
-        docargs = {
+        return {
             'doc_ids': docids,
             'doc_model': self.model,
             'data': data['form'],
-            'docs': docs,
+            'docs': folio_profile,
             'time': time,
             'GetData': get_data_res,
             'GetRest': get_rest_res,
         }
-        docargs['data'].update({'date_end':
-                                parser.parse(docargs.get('data').
-                                             get('date_end')).strftime('%m/%d/\
-                                                                        %Y')})
-        docargs['data'].update({'date_start':
-                                parser.parse(docargs.get('data').
-                                             get('date_start')).strftime('%m/\
-                                                                          %d/\
-                                                                         %Y')})
-        render_model = 'hotel_restaurant.report_rest_order'
-        return self.env['report'].render(render_model, docargs)
 
 
 class FolioReservReport(models.AbstractModel):
@@ -219,10 +199,13 @@ class FolioReservReport(models.AbstractModel):
         return data
 
     @api.model
-    def render_html(self, docids, data=None):
+    def get_report_values(self, docids, data):
         self.model = self.env.context.get('active_model')
-        docs = self.env[self.model].browse(self.env.context.get('active_ids',
-                                                                []))
+        if data is None:
+            data = {}
+        if not docids:
+            docids = data['form'].get('docids')
+        folio_profile = self.env['hotel.restaurant.order'].browse(docids)
         date_start = data.get('date_start', fields.Date.today())
         date_end = data['form'].get('date_end', str(datetime.now() +
                                     relativedelta(months=1,
@@ -230,20 +213,12 @@ class FolioReservReport(models.AbstractModel):
         rm_act = self.with_context(data['form'].get('used_context', {}))
         get_data_res = rm_act.get_data(date_start, date_end)
         get_reserv_res = rm_act.get_reserv(date_start, date_end)
-        docargs = {
+        return {
             'doc_ids': docids,
             'doc_model': self.model,
             'data': data['form'],
-            'docs': docs,
+            'docs': folio_profile,
             'time': time,
             'GetData': get_data_res,
             'GetReserv': get_reserv_res,
         }
-        dt_end = parser.parse(docargs.get('data').get('date_end'))
-        date_end = dt_end.strftime('%m/%d/%Y')
-        docargs['data'].update({'date_end': date_end})
-        dt_start = parser.parse(docargs.get('data').get('date_start'))
-        date_start = dt_start.strftime('%m/%d/%Y')
-        docargs['data'].update({'date_start': date_start})
-        render_model = 'hotel_restaurant.report_reserv_order'
-        return self.env['report'].render(render_model, docargs)

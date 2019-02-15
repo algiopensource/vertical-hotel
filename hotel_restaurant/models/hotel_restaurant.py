@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
 # See LICENSE file for full copyright and licensing details.
 
 import time
-from odoo import models, fields, api, _
+from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from odoo.osv import expression
 
 
 class HotelFolio(models.Model):
+
     _inherit = 'hotel.folio'
 
     hotel_reservation_order_ids = fields.Many2many('hotel.reservation.order',
@@ -28,7 +28,7 @@ class HotelMenucardType(models.Model):
 
     name = fields.Char('Name', required=True)
     menu_id = fields.Many2one('hotel.menucard.type', string='Food Item Type')
-    child_id = fields.One2many('hotel.menucard.type', 'menu_id',
+    child_ids = fields.One2many('hotel.menucard.type', 'menu_id',
                                'Child Categories')
 
     @api.multi
@@ -97,7 +97,7 @@ class HotelRestaurantTables(models.Model):
     _name = "hotel.restaurant.tables"
     _description = "Includes Hotel Restaurant Table"
 
-    name = fields.Char('Table Number', size=64, required=True, index=True)
+    name = fields.Char('Table Number', required=True, index=True)
     capacity = fields.Integer('Capacity')
 
 
@@ -114,18 +114,18 @@ class HotelRestaurantReservation(models.Model):
         @param self: The object pointer
         @return: new record set for hotel restaurant reservation.
         """
-        proxy = self.env['hotel.reservation.order']
+        reservation_order = self.env['hotel.reservation.order']
         for record in self:
             table_ids = [tableno.id for tableno in record.tableno]
             values = {
                 'reservationno': record.id,
-                'date1': record.start_date,
+                'order_date': record.start_date,
                 'folio_id': record.folio_id.id,
                 'table_no': [(6, 0, table_ids)],
                 'is_folio': record.is_folio,
             }
-            proxy.create(values)
-        self.state = 'order'
+            reservation_order.create(values)
+        self.write({'state': 'order'})
         return True
 
     @api.onchange('cname')
@@ -150,12 +150,12 @@ class HotelRestaurantReservation(models.Model):
         @param self: object pointer
         '''
         for rec in self:
-            self.cname = False
-            self.room_no = False
+            rec.cname = False
+            rec.room_no = False
             if rec.folio_id:
-                self.cname = rec.folio_id.partner_id.id
+                rec.cname = rec.folio_id.partner_id.id
                 if rec.folio_id.room_lines:
-                    self.room_no = rec.folio_id.room_lines[0].product_id.id
+                    rec.room_no = rec.folio_id.room_lines[0].product_id.id
 
     @api.multi
     def action_set_to_draft(self):
@@ -200,8 +200,7 @@ class HotelRestaurantReservation(models.Model):
                 raise ValidationError(_('You tried to confirm reservation \
                                          with table those already reserved \
                                          in this reservation period'))
-            else:
-                self.state = 'confirm'
+            self.state = 'confirm'
             return True
 
     @api.multi
@@ -230,9 +229,9 @@ class HotelRestaurantReservation(models.Model):
     _description = "Includes Hotel Restaurant Reservation"
     _rec_name = "reservation_id"
 
-    reservation_id = fields.Char('Reservation No', size=64, readonly=True,
+    reservation_id = fields.Char('Reservation No', readonly=True,
                                  index=True)
-    room_no = fields.Many2one('product.product', string='Room No', size=64,
+    room_no = fields.Many2one('product.product', string='Room No',
                               index=True)
     folio_id = fields.Many2one('hotel.folio', string='Folio No')
     start_date = fields.Datetime('Start Time', required=True,
@@ -240,7 +239,7 @@ class HotelRestaurantReservation(models.Model):
                                           time.strftime
                                           (DEFAULT_SERVER_DATETIME_FORMAT)))
     end_date = fields.Datetime('End Time', required=True)
-    cname = fields.Many2one('res.partner', string='Customer Name', size=64,
+    cname = fields.Many2one('res.partner', string='Customer Name',
                             required=True, index=True)
     partner_address_id = fields.Many2one('res.partner', string='Address')
     tableno = fields.Many2many('hotel.restaurant.tables',
@@ -298,13 +297,13 @@ class HotelRestaurantKitchenOrderTickets(models.Model):
     _description = "Includes Hotel Restaurant Order"
     _rec_name = 'orderno'
 
-    orderno = fields.Char('Order Number', size=64, readonly=True)
-    resno = fields.Char('Reservation Number', size=64)
+    orderno = fields.Char('Order Number', readonly=True)
+    resno = fields.Char('Reservation Number')
     kot_date = fields.Datetime('Date')
-    room_no = fields.Char('Room No', size=64, readonly=True)
-    w_name = fields.Char('Waiter Name', size=64, readonly=True)
+    room_no = fields.Char('Room No', readonly=True)
+    w_name = fields.Char('Waiter Name', readonly=True)
     tableno = fields.Many2many('hotel.restaurant.tables', 'temp_table3',
-                               'table_no', 'name', 'Table Number', size=64,
+                               'table_no', 'name', 'Table Number',
                                help="Table reservation detail.")
     kot_list = fields.One2many('hotel.restaurant.order.list',
                                'kot_order_list', 'Order List',
@@ -406,12 +405,12 @@ class HotelRestaurantOrder(models.Model):
     _description = "Includes Hotel Restaurant Order"
     _rec_name = "order_no"
 
-    order_no = fields.Char('Order Number', size=64, readonly=True)
+    order_no = fields.Char('Order Number', readonly=True)
     o_date = fields.Datetime('Order Date', required=True,
                              default=(lambda *a:
                                       time.strftime
                                       (DEFAULT_SERVER_DATETIME_FORMAT)))
-    room_no = fields.Many2one('product.product', string='Room No', size=64)
+    room_no = fields.Many2one('product.product', string='Room No')
     folio_id = fields.Many2one('hotel.folio', string='Folio No')
     waiter_name = fields.Many2one('res.partner', 'Waiter Name')
     table_no = fields.Many2many('hotel.restaurant.tables', 'temp_table2',
@@ -429,7 +428,7 @@ class HotelRestaurantOrder(models.Model):
                              readonly=True, default=lambda * a: 'draft')
     is_folio = fields.Boolean('Is a Hotel Guest??', help='is customer reside'
                               'in hotel or not')
-    cname = fields.Many2one('res.partner', string='Customer Name', size=64,
+    cname = fields.Many2one('res.partner', string='Customer Name',
                             required=True)
     kitchen_id = fields.Integer('Kitchen id')
     rest_item_id = fields.Many2many('hotel.restaurant.order.list',
@@ -463,7 +462,7 @@ class HotelRestaurantOrder(models.Model):
         order_tickets_obj = self.env['hotel.restaurant.kitchen.order.tickets']
         rest_order_list_obj = self.env['hotel.restaurant.order.list']
         for order in self:
-            table_ids = [x.id for x in order.table_no]
+            table_ids = order.table_no.ids
             line_data = {
                 'orderno': order.order_no,
                 'kot_date': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
@@ -471,19 +470,19 @@ class HotelRestaurantOrder(models.Model):
                 'w_name': order.waiter_name.name,
                 'tableno': [(6, 0, table_ids)],
                 }
-            kot_obj = order_tickets_obj.browse(self.kitchen_id)
-            kot_obj.write(line_data)
+            kot_rec = order_tickets_obj.browse(self.kitchen_id)
+            kot_rec.write(line_data)
             for order_line in order.order_list:
                 if order_line.id not in order.rest_item_id.ids:
                     kot_data1 = order_tickets_obj.create(line_data)
-                    self.kitchen_id = kot_data1.id
+                    order.kitchen_id = kot_data1.id
                     o_line = {
                         'kot_order_list': kot_data1.id,
                         'name': order_line.name.id,
                         'item_qty': order_line.item_qty,
                         'item_rate': order_line.item_rate
                     }
-                    self.rest_item_id = [(4, order_line.id)]
+                    order.rest_item_id = [(4, order_line.id)]
                     rest_order_list_obj.create(o_line)
         return True
 
@@ -501,14 +500,14 @@ class HotelRestaurantOrder(models.Model):
         for order_obj in self:
             hotelfolio = order_obj.folio_id.order_id.id
             if order_obj.folio_id:
-                for order1 in order_obj.order_list:
+                for order in order_obj.order_list:
                     values = {'order_id': hotelfolio,
-                              'name': order1.name.name,
-                              'product_id': order1.name.product_id.id,
-                              'product_uom': order1.name.uom_id.id,
-                              'product_uom_qty': order1.item_qty,
-                              'price_unit': order1.item_rate,
-                              'price_subtotal': order1.price_subtotal,
+                              'name': order.name.name,
+                              'product_id': order.name.product_id.id,
+                              'product_uom': order.name.uom_id.id,
+                              'product_uom_qty': order.item_qty,
+                              'price_unit': order.item_rate,
+                              'price_subtotal': order.price_subtotal,
                               }
                     sol_rec = so_line_obj.create(values)
                     hsl_obj.create({'folio_id': order_obj.folio_id.id,
@@ -555,7 +554,7 @@ class HotelReservationOrder(models.Model):
             line_data = {
                 'orderno': order.order_number,
                 'resno': order.reservationno.reservation_id,
-                'kot_date': order.date1,
+                'kot_date': order.order_date,
                 'w_name': order.waitername.name,
                 'tableno': [(6, 0, table_ids)],
                 }
@@ -593,12 +592,12 @@ class HotelReservationOrder(models.Model):
                 'w_name': order.waitername.name,
                 'tableno': [(6, 0, table_ids)],
                 }
-            kot_obj = order_tickets_obj.browse(self.kitchen_id)
-            kot_obj.write(line_data)
+            kot_rec = order_tickets_obj.browse(self.kitchen_id)
+            kot_rec.write(line_data)
             for order_line in order.order_list:
                 if order_line.id not in order.rest_id.ids:
                     kot_data1 = order_tickets_obj.create(line_data)
-                    self.kitchen_id = kot_data1.id
+                    order.kitchen_id = kot_data1.id
                     o_line = {
                         'kot_order_list': kot_data1.id,
                         'name': order_line.name.id,
@@ -623,13 +622,13 @@ class HotelReservationOrder(models.Model):
         for order_obj in self:
             hotelfolio = order_obj.folio_id.order_id.id
             if order_obj.folio_id:
-                for order1 in order_obj.order_list:
+                for order in order_obj.order_list:
                     values = {'order_id': hotelfolio,
-                              'name': order1.name.name,
-                              'product_id': order1.name.product_id.id,
-                              'product_uom_qty': order1.item_qty,
-                              'price_unit': order1.item_rate,
-                              'price_subtotal': order1.price_subtotal,
+                              'name': order.name.name,
+                              'product_id': order.name.product_id.id,
+                              'product_uom_qty': order.item_qty,
+                              'price_unit': order.item_rate,
+                              'price_subtotal': order.price_subtotal,
                               }
                     sol_rec = so_line_obj.create(values)
                     hsl_obj.create({'folio_id': order_obj.folio_id.id,
@@ -646,10 +645,10 @@ class HotelReservationOrder(models.Model):
     _description = "Reservation Order"
     _rec_name = "order_number"
 
-    order_number = fields.Char('Order No', size=64, readonly=True)
+    order_number = fields.Char('Order No', readonly=True)
     reservationno = fields.Many2one('hotel.restaurant.reservation',
                                     'Reservation No')
-    date1 = fields.Datetime('Date', required=True,
+    order_date = fields.Datetime('Date', required=True,
                             default=(lambda *a:
                                      time.strftime
                                      (DEFAULT_SERVER_DATETIME_FORMAT)))
@@ -658,7 +657,7 @@ class HotelReservationOrder(models.Model):
                                 'table_no', 'name', 'Table Number')
     order_list = fields.One2many('hotel.restaurant.order.list', 'o_l',
                                  'Order List')
-    tax = fields.Float('Tax (%) ', size=64)
+    tax = fields.Float('Tax (%) ')
     amount_subtotal = fields.Float(compute='_compute_amount_all_total',
                                    method=True, string='Subtotal')
     amount_total = fields.Float(compute='_compute_amount_all_total',
@@ -722,7 +721,7 @@ class HotelRestaurantOrderList(models.Model):
     kot_order_list = fields.Many2one('hotel.restaurant.kitchen.order.tickets',
                                      'Kitchen Order Tickets')
     name = fields.Many2one('hotel.menucard', 'Item Name', required=True)
-    item_qty = fields.Integer('Qty', size=64, required=True)
-    item_rate = fields.Float('Rate', size=64)
+    item_qty = fields.Integer('Qty', required=True)
+    item_rate = fields.Float('Rate')
     price_subtotal = fields.Float(compute='_compute_price_subtotal',
                                   method=True, string='Subtotal')

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE xml>
 <odoo>
 
     <!-- ======= Housekeeping ======= -->
@@ -11,16 +10,19 @@
             <form string="Housekeeping">
                 <header>
                     <button string="Clean" name="room_clean" states="inspect,dirty"
-                        type="object" icon="fa-paint-brush" class="btn btn-primary"/>
+                        type="object" class="btn btn-primary"><i class="fa fa-paint-brush"></i></button>
                     <button string="Dirty" name="action_set_to_dirty"
-                        states="inspect,clean" type="object" icon="fa-pencil-square-o"
-                        class="btn btn-primary"/>
+                        states="inspect,clean" type="object"
+                            class="btn btn-primary"><i class="fa-pencil-square-o"></i></button>
                     <button string="Done" name="room_done" states="clean"
-                        type="object" icon="fa-check" class="btn btn-primary"/>
-                    <button string="Cancel" name="room_cancel" states="clean,durty,inspect"
-                        type="object" icon="fa-times-circle" class="btn btn-primary"/>
+                        type="object"
+                            class="btn btn-primary"><i class="fa-check"></i></button>
+                    <button string="Cancel" name="room_cancel" states="clean,dirty,inspect"
+                        type="object"
+                            class="btn btn-primary"><i class="fa-times-circle"></i></button>
                     <button string="Inspect" name="room_inspect" states="cancel"
-                        type="object" icon="fa-search" class="btn btn-primary"/>
+                        type="object"
+                            class="btn btn-primary"><i class="fa-search"></i></button>
                     <field name="state" widget="statusbar" />
                 </header>
                 <sheet>
@@ -31,7 +33,7 @@
                             <field name="room_no" />
                         </group>
                         <group>
-                            <field name="inspector" />
+                            <field name="inspector_id" />
                             <field name="inspect_date_time" />
                             <field name="quality" attrs="{'invisible':[('state','not in',['clean','done'])]}"/>
                         </group>
@@ -39,13 +41,13 @@
                     <newline />
                     <newline />
                     <separator string="Activity Lines" colspan="4" />
-                    <field name="activity_lines" context="{'room_id':room_no, 'today_date':current_date}"
+                    <field name="activity_line_ids" context="{'room_id':room_no, 'today_date':current_date}"
                         colspan="4" nolabel="1">
                         <form string="Activity Lines">
                             <group colspan="4" col="4">
                                 <field name="today_date" />
                                 <field name="activity_name" />
-                                <field name="housekeeper" />
+                                <field name="housekeeper_id" />
                                 <field name="clean_start_time" />
                                 <field name="clean_end_time" />
                             </group>
@@ -60,7 +62,7 @@
                         </form>
                         <tree string="Activity Lines" editable="buttom">
                             <field name="activity_name" />
-                            <field name="housekeeper" />
+                            <field name="housekeeper_id" />
                             <field name="today_date" />
                             <field name="clean_start_time" />
                             <field name="clean_end_time" />
@@ -83,7 +85,7 @@
                 <field name="current_date" />
                 <field name="clean_type" />
                 <field name="room_no" />
-                <field name="inspector" />
+                <field name="inspector_id" />
                 <field name="inspect_date_time" />
                 <field name="state" />
             </tree>
@@ -103,13 +105,13 @@
                     <filter domain="[('state','=','cancel')]" string="Cancel" />
                     <filter domain="[('state','=','done')]" string="Done" />
                 </group>
-                <field name="inspector" />
+                <field name="inspector_id" />
                 <field name="quality" />
                 <field name="state" />
                 <newline />
                 <group expand="0" string="Group By">
-                    <filter name="inspector" string="Inspector Name" icon="terp-personal"
-                        domain="[]" context="{'group_by':'inspector'}" />
+                    <filter name="inspector_id" string="Inspector Name" icon="terp-personal"
+                        domain="[]" context="{'group_by':'inspector_id'}" />
                 </group>
             </search>
         </field>

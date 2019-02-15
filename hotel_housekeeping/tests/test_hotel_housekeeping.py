@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # See LICENSE file for full copyright and licensing details.
 
 from odoo.tests import common
@@ -10,6 +9,10 @@ class TestHousekeeping(common.TransactionCase):
 
     def setUp(self):
         super(TestHousekeeping, self).setUp()
+        self.env = self.env(context=dict(
+            self.env.context,
+            tracking_disable=True,
+        ))
         self.housekeeping_obj = self.env['hotel.housekeeping']
         self.hotel_act_obj = self.env['hotel.housekeeping.activities']
         self.hotel_act_type_obj = self.env['hotel.housekeeping.activity.type']

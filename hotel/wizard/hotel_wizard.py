@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 # See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields, api
+from odoo import api, fields, models
 
 
 class FolioReportWizard(models.TransientModel):
@@ -18,5 +17,5 @@ class FolioReportWizard(models.TransientModel):
             'model': 'hotel.folio',
             'form': self.read(['date_start', 'date_end'])[0]
         }
-        return self.env['report'].get_action(self, 'hotel.report_hotel_folio',
-                                             data=data)
+        return self.env.ref('hotel.report_hotel_management').\
+            report_action(self, data=data)
